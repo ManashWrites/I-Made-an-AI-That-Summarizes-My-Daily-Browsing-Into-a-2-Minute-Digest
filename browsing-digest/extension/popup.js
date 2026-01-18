@@ -4,95 +4,78 @@ document.addEventListener('DOMContentLoaded', () => {
   // Set date picker to today
   const datePicker = document.getElementById('datePicker');
   datePicker.value = new Date().toISOString().split('T')[0];
-  
+
   // Load initial data
-  loadStats();
-  loadRecentPages();
-  
+  refreshData();
+
   // Event listeners
   document.getElementById('exportBtn').addEventListener('click', exportData);
   document.getElementById('viewBtn').addEventListener('click', viewPages);
   document.getElementById('clearBtn').addEventListener('click', clearData);
-  datePicker.addEventListener('change', () => {
-    loadStats();
-    loadRecentPages();
-  });
+  datePicker.addEventListener('change', refreshData);
 });
 
-async function loadStats() {
+// Consolidated data refresh function to avoid duplicate storage calls
+async function refreshData() {
   const date = document.getElementById('datePicker').value;
-  
+  const container = document.getElementById('recentPages');
+
   try {
-    // Get today's data
-    const todayResponse = await chrome.runtime.sendMessage({
-      type: 'GET_HISTORY',
-      date: date
-    });
-    
-    // Get all data
-    const allResponse = await chrome.runtime.sendMessage({
+    // Single storage call to get all data
+    const response = await chrome.runtime.sendMessage({
       type: 'GET_HISTORY',
       date: null
     });
-    
-    if (todayResponse.success && allResponse.success) {
-      const todayData = todayResponse.data;
-      const allData = allResponse.data;
-      
+
+    if (response.success) {
+      const allData = response.data;
+
+      // Filter for selected date client-side
+      const filterDateStr = new Date(date).toDateString();
+      const todayData = allData.filter((entry) => {
+        return new Date(entry.timestamp).toDateString() === filterDateStr;
+      });
+
       // Update stats
       document.getElementById('todayCount').textContent = todayData.length;
       document.getElementById('totalCount').textContent = allData.length;
-      
-      // Calculate reading time
+
       const totalReadingTime = todayData.reduce((sum, page) => sum + (page.readingTime || 0), 0);
       document.getElementById('readingTime').textContent = `${totalReadingTime}m`;
-    }
-  } catch (error) {
-    console.error('Failed to load stats:', error);
-  }
-}
 
-async function loadRecentPages() {
-  const date = document.getElementById('datePicker').value;
-  const container = document.getElementById('recentPages');
-  
-  try {
-    const response = await chrome.runtime.sendMessage({
-      type: 'GET_HISTORY',
-      date: date
-    });
-    
-    if (response.success && response.data.length > 0) {
-      // Sort by timestamp descending and take last 10
-      const pages = response.data
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-        .slice(0, 10);
-      
-      container.innerHTML = pages.map(page => `
-        <div class="page-item">
-          <div class="page-icon">${getEmojiForDomain(page.domain)}</div>
-          <div class="page-info">
-            <div class="page-title" title="${escapeHtml(page.title)}">${escapeHtml(page.title)}</div>
-            <div class="page-meta">
-              <span>${page.domain}</span>
-              <span>•</span>
-              <span>${page.readingTime || 1}m read</span>
-              <span>•</span>
-              <span>${formatTime(page.timestamp)}</span>
+      // Update recent pages list
+      if (todayData.length > 0) {
+        // Sort by timestamp descending and take last 10
+        const pages = todayData
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+          .slice(0, 10);
+
+        container.innerHTML = pages.map(page => `
+          <div class="page-item">
+            <div class="page-icon">${getEmojiForDomain(page.domain)}</div>
+            <div class="page-info">
+              <div class="page-title" title="${escapeHtml(page.title)}">${escapeHtml(page.title)}</div>
+              <div class="page-meta">
+                <span>${page.domain}</span>
+                <span>•</span>
+                <span>${page.readingTime || 1}m read</span>
+                <span>•</span>
+                <span>${formatTime(page.timestamp)}</span>
+              </div>
             </div>
           </div>
-        </div>
-      `).join('');
-    } else {
-      container.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-state-icon">🌐</div>
-          <div>No pages for this date</div>
-        </div>
-      `;
+        `).join('');
+      } else {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🌐</div>
+            <div>No pages for this date</div>
+          </div>
+        `;
+      }
     }
   } catch (error) {
-    console.error('Failed to load recent pages:', error);
+    console.error('Failed to load data:', error);
     container.innerHTML = `
       <div class="empty-state">
         <div class="empty-state-icon">⚠️</div>
@@ -181,8 +164,7 @@ async function clearData() {
     
     if (response.success) {
       showStatus('Data cleared successfully', 'success');
-      loadStats();
-      loadRecentPages();
+      refreshData();
     } else {
       showStatus('Failed to clear data: ' + response.error, 'error');
     }
@@ -242,7 +224,9 @@ function escapeHtml(text) {
 
 function generateHTMLReport(pages, date) {
   const sortedPages = pages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-  
+  // Calculate total reading time once
+  const totalReadingTime = pages.reduce((sum, p) => sum + (p.readingTime || 0), 0);
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -308,7 +292,7 @@ function generateHTMLReport(pages, date) {
 </head>
 <body>
   <h1>📚 Browsing Digest - ${date}</h1>
-  <p>Total pages: ${pages.length} | Total reading time: ${pages.reduce((sum, p) => sum + (p.readingTime || 0), 0)} minutes</p>
+  <p>Total pages: ${pages.length} | Total reading time: ${totalReadingTime} minutes</p>
   
   ${sortedPages.map(page => `
     <div class="page">
