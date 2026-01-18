@@ -1,0 +1,47 @@
+{
+  "exportedAt": "2025-01-19T18:00:00.000Z",
+  "date": "2025-01-19",
+  "totalPages": 5,
+  "pages": [
+    {
+      "url": "https://news.ycombinator.com/item?id=12345",
+      "title": "Show HN: I built a local AI that runs entirely offline",
+      "content": "This is a sample project that demonstrates running AI models locally without any internet connection. The key insight is that smaller models (1-7B parameters) can run efficiently on consumer hardware while still providing useful results. The author discusses quantization techniques and memory optimization strategies.",
+      "timestamp": "2025-01-19T09:30:00.000Z",
+      "domain": "news.ycombinator.com",
+      "readingTime": 3
+    },
+    {
+      "url": "https://medium.com/example/fine-tuning-guide",
+      "title": "A Complete Guide to Fine-Tuning Small LLMs",
+      "content": "Fine-tuning allows you to specialize a pre-trained model for your specific use case. This guide covers LoRA, QLoRA, and full fine-tuning approaches. Key considerations include dataset quality, learning rate scheduling, and evaluation metrics. The author recommends starting with QLoRA for most use cases due to its memory efficiency.",
+      "timestamp": "2025-01-19T10:15:00.000Z",
+      "domain": "medium.com",
+      "readingTime": 8
+    },
+    {
+      "url": "https://github.com/example/cool-project",
+      "title": "cool-project: An open-source AI toolkit",
+      "content": "README: This toolkit provides utilities for working with local language models. Features include: model loading, quantization, inference optimization, and a simple API server. Installation is straightforward via pip. The project supports multiple backends including llama.cpp, vLLM, and transformers.",
+      "timestamp": "2025-01-19T11:00:00.000Z",
+      "domain": "github.com",
+      "readingTime": 2
+    },
+    {
+      "url": "https://arxiv.org/abs/2401.12345",
+      "title": "Efficient Inference for Small Language Models: A Survey",
+      "content": "Abstract: This survey examines recent advances in efficient inference techniques for language models under 10B parameters. We categorize approaches into quantization, pruning, knowledge distillation, and architectural modifications. Our analysis shows that 4-bit quantization with calibration can preserve 95% of model quality while reducing memory by 4x.",
+      "timestamp": "2025-01-19T14:30:00.000Z",
+      "domain": "arxiv.org",
+      "readingTime": 15
+    },
+    {
+      "url": "https://twitter.com/example/status/123",
+      "title": "Thread on AI productivity tools",
+      "content": "1/ Here are 10 AI tools that changed my workflow this year. Thread: First, local LLMs for coding assistance - no more sending code to the cloud. Second, voice transcription with Whisper running on my laptop. Third, document summarization for research papers...",
+      "timestamp": "2025-01-19T16:45:00.000Z",
+      "domain": "twitter.com",
+      "readingTime": 4
+    }
+  ]
+}

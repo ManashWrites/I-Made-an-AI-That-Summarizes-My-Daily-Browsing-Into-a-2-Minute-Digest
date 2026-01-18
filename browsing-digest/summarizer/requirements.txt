@@ -1,0 +1,5 @@
+# No external dependencies required!
+# The summarizer uses only Python standard library + Ollama CLI
+#
+# Optional: For enhanced features, you can install:
+# rich>=13.0.0  # For prettier terminal output
