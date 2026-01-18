@@ -131,9 +131,9 @@
       '[aria-hidden="true"]'
     ];
     
-    removeSelectors.forEach(selector => {
-      clone.querySelectorAll(selector).forEach(el => el.remove());
-    });
+    // Optimize: combine selectors into single query to reduce DOM lookups
+    const combinedSelector = removeSelectors.join(',');
+    clone.querySelectorAll(combinedSelector).forEach(el => el.remove());
     
     // Extract and clean text
     let text = clone.textContent || '';

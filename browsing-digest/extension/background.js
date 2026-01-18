@@ -90,11 +90,10 @@ async function getHistory(date) {
       let history = result[STORAGE_KEY] || [];
       
       if (date) {
-        // Filter by date
+        // Filter by date (optimize by creating filterDate once)
+        const filterDateStr = new Date(date).toDateString();
         history = history.filter((entry) => {
-          const entryDate = new Date(entry.timestamp).toDateString();
-          const filterDate = new Date(date).toDateString();
-          return entryDate === filterDate;
+          return new Date(entry.timestamp).toDateString() === filterDateStr;
         });
       }
       
@@ -142,10 +141,10 @@ async function clearHistory(date) {
         }
         
         let history = result[STORAGE_KEY] || [];
+        // Optimize by creating filterDate once
+        const filterDateStr = new Date(date).toDateString();
         history = history.filter((entry) => {
-          const entryDate = new Date(entry.timestamp).toDateString();
-          const filterDate = new Date(date).toDateString();
-          return entryDate !== filterDate;
+          return new Date(entry.timestamp).toDateString() !== filterDateStr;
         });
         
         chrome.storage.local.set({ [STORAGE_KEY]: history }, () => {
